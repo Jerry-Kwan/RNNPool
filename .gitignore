@@ -3,4 +3,6 @@ notes_*
 ~$*
 tmp*
 __pycache__/
+EdgeML-master/
+*.egg-info/
 
