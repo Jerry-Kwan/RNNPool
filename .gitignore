@@ -5,4 +5,4 @@ tmp*
 __pycache__/
 EdgeML-master/
 *.egg-info/
-
+data/
