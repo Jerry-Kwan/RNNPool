@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT license.
 
+import time
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -39,6 +40,9 @@ parser.add_argument('--model_arch',
                     default='model_mobilenet_rnnpool', type=str,
                     choices=['model_mobilenet_rnnpool', 'model_mobilenet_2rnnpool'],
                     help='choose architecture among rpool variants')
+parser.add_argument('--save-home',
+                    default='./',
+                    help='checkpoint save path (default: ./)')
 parser.add_argument('--ann', default=None, type=str, 
     help='specify new-path-to-visualwakewords-dataset used in dataset creation step')
 parser.add_argument('--data', default=None, type=str, 
@@ -96,6 +100,7 @@ class VisualWakeWordsClassification(VisionDataset):
 
 # Training
 def train(epoch, model, trainloader, optimizer, criterion, args):
+    start_time = time.time()
     print('\n------Epoch: %d------' % epoch)
     model.train()
     train_loss = 0
@@ -123,11 +128,12 @@ def train(epoch, model, trainloader, optimizer, criterion, args):
         if batch_idx % args.print_freq == 0:
             print(f'[batch_idx--{batch_idx}] train_loss: {train_loss / total}, acc: {correct / total}, lr: {optimizer.param_groups[0]["lr"]}')
 
+    print(f'total time of one epoch: {time.time() - start_time} s')
     print('train_loss: ',train_loss / total, ' acc: ', correct / total)
     print('->>lr:{:.6f}'.format(optimizer.param_groups[0]['lr']))
 
 
-def test(epoch, model, testloader, criterion):
+def test(epoch, model, testloader, criterion, args):
     global best_acc
     model.eval()
     test_loss = 0
@@ -153,14 +159,23 @@ def test(epoch, model, testloader, criterion):
     acc = 100.*correct/total
     if acc > best_acc:
         print('Saving..')
+
         state = {
             'model': model.state_dict(),
             'acc': acc,
             'epoch': epoch,
         }
-        if not os.path.isdir('./checkpoints/'):
-            os.mkdir('./checkpoints/')
-        torch.save(state, './checkpoints/model_mobilenet_rnnpool.pth')
+
+        # if not os.path.isdir('./checkpoints/'):
+        #     os.mkdir('./checkpoints/')
+
+        # torch.save(state, './checkpoints/model_mobilenet_rnnpool.pth')
+
+        if not os.path.isdir(os.path.join(args.save_home, 'checkpoints')):
+            os.mkdir(os.path.join(args.save_home, 'checkpoints'))
+
+        torch.save(state, os.path.join(args.save_home, 'checkpoints', 'model_mobilenet_rnnpool.pth'))
+
         best_acc = acc
 
 
@@ -230,8 +245,9 @@ if __name__ == '__main__':
     model = model.to(device)
 
     if torch.cuda.is_available() and torch.cuda.device_count() > 1:
-        model = torch.nn.DataParallel(model)
         print(f'use {torch.cuda.device_count()} GPUs!')
+        model = torch.nn.DataParallel(model)
+        print(f'DataParallel device_ids: {model.device_ids}')
     elif torch.cuda.is_available():
         print('use only 1 GPU')
     else:
@@ -251,4 +267,4 @@ if __name__ == '__main__':
   
     for epoch in range(start_epoch, start_epoch + args.epochs):
         train(epoch, model, trainloader, optimizer, criterion, args)    
-        test(epoch, model, testloader, criterion)
+        test(epoch, model, testloader, criterion, args)
