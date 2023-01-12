@@ -14,7 +14,7 @@ import random
 from PIL import Image
 import numpy as np
 from importlib import import_module
-from thop import profile, clever_format
+from torchinfo import summary
 
 device = torch.device('cpu')
 
@@ -67,9 +67,7 @@ if __name__ == '__main__':
                 for x in os.listdir(img_path) if x.endswith('jpg')]
 
     # statistic
-    rand_input = torch.randn(1, 3, 224, 224)
-    macs, params = clever_format(profile(model, inputs=(rand_input, )), "%.3f")
-    print(f'\nMAdds: {macs}, Parameters: {params}\n')
+    summary(model, input_size=(1, 3, 224, 224))
 
     for i, path in enumerate(sorted(img_list)):
         img = Image.open(path).convert('RGB')
