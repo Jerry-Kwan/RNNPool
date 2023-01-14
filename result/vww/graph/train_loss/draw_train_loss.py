@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 
 from get_info import *
 
+plt.figure(figsize=(8, 5), dpi=150)
+
 # draw original model
 train_loss = get_train_loss('../../original/150epochs_01.txt')
 plt.plot(train_loss, label='FastGRNN+Front', linestyle='-', color='cyan')
@@ -16,8 +18,8 @@ RNN_CELL_ABBR = ['fg', 'gru', 'lstm']
 RNN_CELL = ['FastGRNN', 'GRU', 'LSTM']
 POS_ABBR = ['front', 'last', 'fl']
 POS = ['Front', 'Last', 'FrontLast']
-LINE_STYLE = ['-', '--', ':']
-LINE_COLOR = ['cyan', 'r', 'olive']
+LINE_COLOR = ['lime', 'pink', 'green', 'blue', 'olive', 'purple', 'r', 'gold']
+num = 0
 
 for i, x in enumerate(RNN_CELL_ABBR):
     for j, y in enumerate(POS_ABBR):
@@ -27,9 +29,11 @@ for i, x in enumerate(RNN_CELL_ABBR):
         file_name = f'{PREFIX}_{x}_{y}_{NUMBER}.txt'
         if not os.path.exists(f'../../modified/{file_name}'):
             continue
-        
+
         train_loss = get_train_loss(f'../../modified/{file_name}')
-        plt.plot(train_loss, linestyle=LINE_STYLE[i], color=LINE_COLOR[j], label=f'{RNN_CELL[i]}+{POS[j]}')
+        plt.plot(train_loss, linestyle='-', color=LINE_COLOR[num], label=f'{RNN_CELL[i]}+{POS[j]}')
+
+        num += 1
 
 # some information
 plt.title('Compare Loss for 9 Models in Training')

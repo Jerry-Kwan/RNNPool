@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 
 from get_info import *
 
+plt.figure(figsize=(8, 5), dpi=150)
+
 # draw original model
 test_acc = get_test_acc('../../original/150epochs_01.txt')
 plt.plot(test_acc, label='FastGRNN+Front', linestyle='-', color='cyan')
@@ -16,8 +18,8 @@ RNN_CELL_ABBR = ['fg', 'gru', 'lstm']
 RNN_CELL = ['FastGRNN', 'GRU', 'LSTM']
 POS_ABBR = ['front', 'last', 'fl']
 POS = ['Front', 'Last', 'FrontLast']
-LINE_STYLE = ['-', '--', ':']
-LINE_COLOR = ['cyan', 'r', 'olive']
+LINE_COLOR = ['lime', 'fuchsia', 'green', 'blue', 'olive', 'purple', 'r', 'gold']
+num = 0
 
 for i, x in enumerate(RNN_CELL_ABBR):
     for j, y in enumerate(POS_ABBR):
@@ -29,10 +31,12 @@ for i, x in enumerate(RNN_CELL_ABBR):
             continue
         
         test_acc = get_test_acc(f'../../modified/{file_name}')
-        plt.plot(test_acc, linestyle=LINE_STYLE[i], color=LINE_COLOR[j], label=f'{RNN_CELL[i]}+{POS[j]}')
+        plt.plot(test_acc, linestyle='-', color=LINE_COLOR[num], label=f'{RNN_CELL[i]}+{POS[j]}')
+
+        num += 1
 
 # some information
-plt.title('Compare acc for 9 Models in Testing')
+plt.title('Compare Acc for 9 Models in Testing')
 plt.xlabel('epoch')
 plt.ylabel('acc')
 plt.legend(loc='best')

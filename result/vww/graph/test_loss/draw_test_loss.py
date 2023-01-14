@@ -6,9 +6,11 @@ import matplotlib.pyplot as plt
 
 from get_info import *
 
+plt.figure(figsize=(8, 5), dpi=150)
+
 # draw original model
 test_loss = get_test_loss('../../original/150epochs_01.txt')
-plt.plot(test_loss, label='FastGRNN+Front', linestyle='-', color='cyan')
+plt.plot(test_loss, label='FastGRNN+Front', linestyle='-', color='gold')
 
 # draw modified model
 PREFIX, NUMBER = '150epochs', '01'
@@ -16,8 +18,8 @@ RNN_CELL_ABBR = ['fg', 'gru', 'lstm']
 RNN_CELL = ['FastGRNN', 'GRU', 'LSTM']
 POS_ABBR = ['front', 'last', 'fl']
 POS = ['Front', 'Last', 'FrontLast']
-LINE_STYLE = ['-', '--', ':']
-LINE_COLOR = ['cyan', 'r', 'olive']
+LINE_COLOR = ['lime', 'cyan', 'green', 'blue', 'olive', 'purple', 'r', 'pink']
+num = 0
 
 for i, x in enumerate(RNN_CELL_ABBR):
     for j, y in enumerate(POS_ABBR):
@@ -29,7 +31,9 @@ for i, x in enumerate(RNN_CELL_ABBR):
             continue
         
         test_loss = get_test_loss(f'../../modified/{file_name}')
-        plt.plot(test_loss, linestyle=LINE_STYLE[i], color=LINE_COLOR[j], label=f'{RNN_CELL[i]}+{POS[j]}')
+        plt.plot(test_loss, linestyle='-', color=LINE_COLOR[num], label=f'{RNN_CELL[i]}+{POS[j]}')
+
+        num += 1
 
 # some information
 plt.title('Compare Loss for 9 Models in Testing')

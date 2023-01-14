@@ -44,3 +44,14 @@ def get_test_acc(file_path):
                 acc.append(float(line.split()[3]))
 
         return acc
+
+def get_epoch_time(file_path):
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+        epoch_time = []
+        
+        for line in lines:
+            if line[:5] == 'total':
+                epoch_time.append(float(line.split()[5]))
+        
+        return epoch_time
