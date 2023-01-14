@@ -23,23 +23,24 @@ num = 0
 
 for i, x in enumerate(RNN_CELL_ABBR):
     for j, y in enumerate(POS_ABBR):
+        # ignore original model
         if x == 'fg' and y == 'front':
             continue
 
         file_name = f'{PREFIX}_{x}_{y}_{NUMBER}.txt'
         if not os.path.exists(f'../../modified/{file_name}'):
             continue
-        
+
         train_acc = get_train_acc(f'../../modified/{file_name}')
         plt.plot(train_acc, linestyle='-', color=LINE_COLOR[num], label=f'{RNN_CELL[i]}+{POS[j]}')
 
         num += 1
 
-# some information
+# draw some information
 plt.title('Compare Acc for 9 Models in Training')
 plt.xlabel('epoch')
 plt.ylabel('acc')
 plt.legend(loc='best')
-plt.gca().xaxis.set_major_locator(plt.MultipleLocator(20))  # xaxis step
+plt.gca().xaxis.set_major_locator(plt.MultipleLocator(20))  # set x-axis step
 
 plt.show()

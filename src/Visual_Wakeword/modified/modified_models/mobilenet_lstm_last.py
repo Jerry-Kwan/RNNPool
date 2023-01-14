@@ -22,6 +22,8 @@ model_urls = {
 
 
 class ModifiedRNNPool(RNNPool):
+    """Use LSTM to modify RNNPool."""
+
     def __init__(self, nRows, nCols, nHiddenDims,
                  nHiddenDimsBiDir, inputDims, 
                  w1Sparsity=1.0, u1Sparsity=1.0, w2Sparsity=1.0, u2Sparsity=1.0):
@@ -232,7 +234,7 @@ class MobileNetV2(nn.Module):
 
         x = self.features_init(x)
      
-        # jk modified
+        # jk modified, remove rnnpool used in the front of mobilenetv2
         # patches = self.unfold(x)
         # patches = torch.cat(torch.unbind(patches,dim=2),dim=0)
         # patches = torch.reshape(patches,(-1,8,6,6))

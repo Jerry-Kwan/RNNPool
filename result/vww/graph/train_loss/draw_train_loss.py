@@ -23,6 +23,7 @@ num = 0
 
 for i, x in enumerate(RNN_CELL_ABBR):
     for j, y in enumerate(POS_ABBR):
+        # ignore original model
         if x == 'fg' and y == 'front':
             continue
 
@@ -35,11 +36,11 @@ for i, x in enumerate(RNN_CELL_ABBR):
 
         num += 1
 
-# some information
+# draw some information
 plt.title('Compare Loss for 9 Models in Training')
 plt.xlabel('epoch')
 plt.ylabel('loss')
 plt.legend(loc='best')
-plt.gca().xaxis.set_major_locator(plt.MultipleLocator(20))  # xaxis step
+plt.gca().xaxis.set_major_locator(plt.MultipleLocator(20))  # set x-axis step
 
 plt.show()

@@ -8,12 +8,10 @@ import torch.nn.functional as F
 import numpy as np
 import torch.utils.checkpoint as cp
 from collections import OrderedDict
-# from torchvision.models.utils import load_state_dict_from_url
 from torch.hub import load_state_dict_from_url
 from edgeml_pytorch.graph.rnnpool import *
 
 __all__ = ['MobileNetV2', 'mobilenetv2_rnnpool']
-
 
 model_urls = {
     'mobilenet_v2': 'https://download.pytorch.org/models/mobilenet_v2-b0353104.pth',
@@ -128,7 +126,6 @@ class MobileNetV2(nn.Module):
         self.rnn_model = RNNPool(6, 6, 8, 8, input_channel)#num_init_features)
         self.fold = nn.Fold(kernel_size=(1,1),output_size=(27,27))
 
-
         features=[]
 
         input_channel = 32
@@ -166,13 +163,11 @@ class MobileNetV2(nn.Module):
     def forward(self, x):
         batch_size = x.shape[0]
         
-        
         x = self.features_init(x)
      
         patches = self.unfold(x)
         patches = torch.cat(torch.unbind(patches,dim=2),dim=0)
         patches = torch.reshape(patches,(-1,8,6,6))
-        
 
         output_x = int((x.shape[2]-6)/4 + 1)
         output_y = int((x.shape[3]-6)/4 + 1)
@@ -195,6 +190,7 @@ def mobilenetv2_rnnpool(pretrained=False, progress=True, **kwargs):
     """
     Constructs a MobileNetV2 architecture from
     `"MobileNetV2: Inverted Residuals and Linear Bottlenecks" <https://arxiv.org/abs/1801.04381>`_.
+
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
         progress (bool): If True, displays a progress bar of the download to stderr

@@ -26,10 +26,12 @@ for i, x in enumerate(RNN_CELL_ABBR):
         epoch_time.append(np.mean(get_epoch_time(f'../modified/{file_name}')))
         label.append(f'{RNN_CELL[i]}+{POS[j]}')
 
+# sort by average time
 ret = sorted(list(zip(epoch_time, label)), key=lambda x: x[0])
 epoch_time = [x[0] for x in ret]
 label = [x[1] for x in ret]
 
+# draw barh graph
 plt.figure(figsize=(16, 5), dpi=100)
 barh = plt.barh(range(len(epoch_time)), epoch_time, tick_label=label)
 plt.bar_label(barh, label_type='edge')

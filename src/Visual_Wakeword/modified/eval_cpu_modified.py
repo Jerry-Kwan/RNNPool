@@ -18,6 +18,7 @@ from torchinfo import summary
 
 device = torch.device('cpu')
 
+# path for modified-model
 MODIFIED_MODELS_DIR = 'modified_models'
 
 # arg parser
@@ -37,8 +38,8 @@ if __name__ == '__main__':
     print(f'Model: {args.model_arch}')
     print()
 
+    # add transform
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-
     transform_test = transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(224),
@@ -46,6 +47,7 @@ if __name__ == '__main__':
         normalize
     ]) 
 
+    # load model
     module = import_module(f'{MODIFIED_MODELS_DIR}.{args.model_arch}')
     model = module.mobilenetv2_rnnpool(num_classes=2, width_mult=0.35, last_channel=320)
     model = model.to(device)
@@ -54,6 +56,7 @@ if __name__ == '__main__':
     # or model.load_state_dict will raise error "Unexpected key(s) in state_dict"
     model = torch.nn.DataParallel(model)
 
+    # load checkpoint
     checkpoint = torch.load(args.weights, map_location=device)
     checkpoint_dict = checkpoint['model']
     model_dict = model.state_dict()
@@ -62,11 +65,12 @@ if __name__ == '__main__':
 
     model.eval()
 
+    # list eval image
     img_path = args.image_folder
     img_list = [os.path.join(img_path, x)
                 for x in os.listdir(img_path) if x.endswith('jpg')]
 
-    # statistic
+    # count MAdds and number of parameters in the model
     summary(model, input_size=(1, 3, 224, 224))
 
     for i, path in enumerate(sorted(img_list)):

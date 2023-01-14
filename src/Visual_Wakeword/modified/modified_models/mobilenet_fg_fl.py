@@ -8,12 +8,10 @@ import torch.nn.functional as F
 import numpy as np
 import torch.utils.checkpoint as cp
 from collections import OrderedDict
-# from torchvision.models.utils import load_state_dict_from_url
 from torch.hub import load_state_dict_from_url
 from edgeml_pytorch.graph.rnnpool import *
 
 __all__ = ['MobileNetV2', 'mobilenetv2_rnnpool']
-
 
 model_urls = {
     'mobilenet_v2': 'https://download.pytorch.org/models/mobilenet_v2-b0353104.pth',

@@ -101,14 +101,16 @@ class VisualWakeWordsClassification(VisionDataset):
         return len(self.ids)
 
 
-# Training
 def train(epoch, model, trainloader, optimizer, criterion, args):
+    # record start time
     start_time = time.time()
+
     print('\n------Epoch: %d------' % epoch)
     model.train()
-    train_loss = 0
-    correct = 0 
-    total = 0
+
+    train_loss = 0  # sum of training loss
+    correct = 0     # number of correct prediction
+    total = 0       # total number of training sample
     train_loader_len = len(trainloader)
 
     for batch_idx, (inputs, targets) in enumerate(trainloader):
@@ -128,6 +130,7 @@ def train(epoch, model, trainloader, optimizer, criterion, args):
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
 
+        # log info
         if batch_idx % args.print_freq == 0:
             print(f'[batch_idx--{batch_idx}] train_loss: {train_loss / total}, acc: {correct / total}, lr: {optimizer.param_groups[0]["lr"]}')
 
@@ -138,10 +141,13 @@ def train(epoch, model, trainloader, optimizer, criterion, args):
 
 def test(epoch, model, testloader, criterion, args):
     global best_acc
+
     model.eval()
-    test_loss = 0
-    correct = 0
-    total = 0
+
+    test_loss = 0  # sum of test loss
+    correct = 0    # number of correct prediction
+    total = 0      # total number of test sample
+
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(testloader):
             batch_size = inputs.shape[0]
@@ -157,7 +163,7 @@ def test(epoch, model, testloader, criterion, args):
 
     print('test_loss: ', test_loss / total, ' test_acc: ', correct / total)
 
-    # Save checkpoint.
+    # save checkpoint
     print('best acc: ', best_acc)
     acc = 100.*correct/total
     if acc > best_acc:
@@ -169,11 +175,6 @@ def test(epoch, model, testloader, criterion, args):
             'epoch': epoch,
         }
 
-        # if not os.path.isdir('./checkpoints/'):
-        #     os.mkdir('./checkpoints/')
-
-        # torch.save(state, './checkpoints/model_mobilenet_rnnpool.pth')
-
         if not os.path.isdir(os.path.join(args.save_home, 'checkpoints')):
             os.mkdir(os.path.join(args.save_home, 'checkpoints'))
 
@@ -183,6 +184,10 @@ def test(epoch, model, testloader, criterion, args):
 
 
 def adjust_learning_rate(optimizer, epoch, iteration, num_iter):
+    """Adjust lr according to the method mentioned in the paper.
+
+    There are 5 warmup epochs.
+    """
     lr = optimizer.param_groups[0]['lr']
 
     warmup_epoch = 0
@@ -207,8 +212,8 @@ if __name__ == '__main__':
     print(f'Number of dataloader workers: {args.num_workers}')
     print()
 
+    # add transform
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-
     transform_train = transforms.Compose([
         # transforms.RandomAffine(10, translate=None, shear=(5,5,5,5), resample=False, fillcolor=0),
         transforms.RandomResizedCrop(size=(224,224), scale=(0.2,1.0)),
@@ -218,7 +223,6 @@ if __name__ == '__main__':
         transforms.ToTensor(),
         normalize
     ])
-
     transform_test = transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(224),
@@ -226,28 +230,28 @@ if __name__ == '__main__':
         normalize
     ]) 
 
+    # load train dataset
     trainset = VisualWakeWordsClassification(root=os.path.join(args.data,'all2014'), 
                         annFile=os.path.join(args.ann, 'annotations/instances_train.json'), 
                         transform=transform_train, split='train')
-
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, 
                                               num_workers=args.num_workers)
-
     print(f'Len of trainloader: {len(trainloader)}\n')
 
+    # load test dataset
     testset = VisualWakeWordsClassification(root=os.path.join(args.data,'all2014'), 
                                             annFile=os.path.join(args.ann, 'annotations/instances_val.json'),
                                             transform=transform_test, split='val')
-
     testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=False, 
                                              num_workers=args.num_workers)
-
     print(f'Len of testloader: {len(testloader)}\n')
 
+    # load model
     module = import_module(f'{MODIFIED_MODELS_DIR}.{args.model_arch}')
     model = module.mobilenetv2_rnnpool(num_classes=2, width_mult=0.35, last_channel=320)
     model = model.to(device)
 
+    # check and use DataParallel
     if torch.cuda.is_available() and torch.cuda.device_count() > 1:
         print(f'use {torch.cuda.device_count()} GPUs!')
         model = torch.nn.DataParallel(model)
@@ -257,6 +261,7 @@ if __name__ == '__main__':
     else:
         print('use cpu')
 
+    # whether use resume
     if args.resume:
         # Load checkpoint
         print('==> Resuming from checkpoint..')
@@ -266,9 +271,9 @@ if __name__ == '__main__':
         start_epoch = checkpoint['epoch']
 
     criterion = nn.CrossEntropyLoss().cuda()
-
     optimizer = optim.SGD(model.parameters(), lr=0.05, momentum=0.9, weight_decay=4e-5)#, alpha=0.9)
   
+    # begin training and testing
     for epoch in range(start_epoch, start_epoch + args.epochs):
         train(epoch, model, trainloader, optimizer, criterion, args)    
         test(epoch, model, testloader, criterion, args)

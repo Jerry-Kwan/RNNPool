@@ -1,4 +1,5 @@
 def get_train_loss(file_path):
+    """Get train loss from log file."""
     with open(file_path, 'r') as f:
         lines = f.readlines()
         loss = []
@@ -11,6 +12,7 @@ def get_train_loss(file_path):
 
 
 def get_train_acc(file_path):
+    """Get train acc from log file."""
     with open(file_path, 'r') as f:
         lines = f.readlines()
         acc = []
@@ -23,6 +25,7 @@ def get_train_acc(file_path):
 
 
 def get_test_loss(file_path):
+    """Get test loss from log file."""
     with open(file_path, 'r') as f:
         lines = f.readlines()
         loss = []
@@ -35,6 +38,7 @@ def get_test_loss(file_path):
 
 
 def get_test_acc(file_path):
+    """Get test acc from log file."""
     with open(file_path, 'r') as f:
         lines = f.readlines()
         acc = []
@@ -46,6 +50,7 @@ def get_test_acc(file_path):
         return acc
 
 def get_epoch_time(file_path):
+    """Get training time per epoch from log file."""
     with open(file_path, 'r') as f:
         lines = f.readlines()
         epoch_time = []
